@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Настройки</title>
+    <link rel="stylesheet" href="./static/css/main.css">
+</head>
+<body style="background-color:#EEEFF4;margin: 0;">
+<!--    <div class="top-bar">-->
+<!--        <p style="margin: 0;margin-left: 21px;">Родительский контроль v1.01</p>-->
+<!--        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 21px;">-->
+<!--            <path d="M18 6L6 18" stroke="#18191F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--            <path d="M6 6L18 18" stroke="#18191F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--        </svg>-->
+<!--    </div>-->
+    <form action="/settings" method="post" class="settings-block">
+        <div class="white-block">
+            <div class="vertical-text-block">
+                <h2>Запрещенные приложения</h2>
+                <p>При их запуске в чате приходит уведомление</p>
+            </div>
+            <textarea name="banned_apps" placeholder="Например: Игра.exe, Лучшая игра...">{{ banned_apps }}</textarea>
+        </div>
+        <div class="white-block">
+            <div class="vertical-text-block">
+                <h2>Запрещенные сайты</h2>
+                <p>При их запуске в чате приходит уведомление</p>
+            </div>
+            <textarea name="banned_hostnames" placeholder="Например: github.com...">{{ banned_sites }}</textarea>
+        </div>
+        <div class="white-block">
+            <h2>Доступ к скриншотам</h2>
+            <label class="switch">
+                <input type="checkbox" name="scrn_acc"{% if scrn_acc %} checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <div class="white-block">
+            <h2>Сбор статистики</h2>
+            <label class="switch">
+                <input type="checkbox" name="stat_acc"{% if stat_acc %} checked{% endif %}>
+                <span class="slider round"></span>
+            </label>
+        </div>
+        <a href="" class="btn btn-list btn-yellow"><button>Сохранить</button></a>
+    </form>
+</body>
+</html>

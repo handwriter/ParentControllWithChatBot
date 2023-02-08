@@ -33,6 +33,14 @@ MANIFEST
 *.manifest
 *.spec
 
+mmm.py
+process.txt
+res.html
+res2.html
+test.py
+test_eel.py
+
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
