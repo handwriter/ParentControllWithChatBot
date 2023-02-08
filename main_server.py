@@ -63,7 +63,7 @@ async def check_messages_to_send(wait_for):
 if __name__ == '__main__':
 
     Process(target=bot_init).start()
-    app.run("127.0.0.1", 689, use_reloader=False)
+    app.run("0.0.0.0", 689, use_reloader=False)
     # Process(target=app.run, args=("127.0.0.1", "5000"))
     # loop = asyncio.get_event_loop()
     # loop.create_task(app.run)
