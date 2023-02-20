@@ -14,10 +14,10 @@ TOKEN = '6054188657:AAFuLQ7yyPUdhQmau7TGmsG776Ny5YTElZ4'
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
-def GenerateMainKeyboard():
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(KeyboardButton("🖼 Получить скриншот"))
-    return keyboard
+# def GenerateMainKeyboard():
+#     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+#     keyboard.add(KeyboardButton("🖼 Получить скриншот"))
+#     return keyboard
 
 
 
@@ -38,7 +38,7 @@ async def first_quest(callback: types.CallbackQuery):
         if DB.get_user_by_chat_id(callback.from_user.id) is None:
             DB.create_user(callback.from_user.id)
         txt = text("Отлично. Твой ID: ", code(f"{callback.from_user.id}"), "\nВведи его в приложении на устройстве")
-        await bot.edit_message_text(txt, message_id=callback.data.split("|")[-1], chat_id=callback.from_user.id, parse_mode=ParseMode.MARKDOWN, reply_markup=GenerateMainKeyboard())
+        await bot.edit_message_text(txt, message_id=callback.data.split("|")[-1], chat_id=callback.from_user.id, parse_mode=ParseMode.MARKDOWN)
     else:
         await bot.edit_message_text("Хорошо, но ты можешь сделать это позднее, командой /start", message_id=callback.data.split("|")[-1], chat_id=callback.from_user.id)
 
