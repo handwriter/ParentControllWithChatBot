@@ -10,9 +10,9 @@ def login():
     usr = DB.get_user_by_chat_id(request.args["id"])
     if usr is None:
         return jsonify({"message": "Пользователь не найден", "status": False})
-    if not usr[2]:
-        DB.change_user_by_id(tg_chat_id=request.args["id"], new_device=1)
-        DB.create_notify(request.args["id"], "Устройство успешно добавлено!")
+    # if not usr[2]:
+    DB.change_user_by_id(tg_chat_id=request.args["id"], new_device=1)
+    DB.create_notify(request.args["id"], "Устройство успешно добавлено!")
     return jsonify({"message": "Ok", "status": True})
 
 @app.route("/banned_app_report")

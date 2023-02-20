@@ -13,6 +13,7 @@ import socket
 import time
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, jsonify
+import tkinter as tk
 # from PyQt5.QtCore import *
 # from PyQt5.QtGui import QMouseEvent, QCursor
 # from PyQt5.QtWidgets import *
@@ -67,7 +68,7 @@ CONFIG = Config(CONFIG_FILEPATH, "config.json")
 
 
 c = wmi.WMI()
-SERVER_ADDRESS = "http://127.0.0.1:689/"
+SERVER_ADDRESS = "http://194.87.253.133:689/"
 BANNED_APPS = {}
 if "banned_apps" in CONFIG:
     for i in CONFIG["banned_apps"]:
@@ -144,7 +145,15 @@ def get_app_id(hwnd):
 #     def update_title(self):
 #         self.show()
 
+def center_window(root, width=300, height=200, x=500, y=500):
+    # get screen width and height
+    # screen_width = root.winfo_screenwidth()
+    # screen_height = root.winfo_screenheight()
 
+    # calculate position x and y coordinates
+    # x = (screen_width/2) - (width/2)
+    # y = (screen_height/2) - (height/2)
+    root.geometry('%dx%d+%d+%d' % (width, height, x, y))
 
 def check_ip(cap: Packet):
     global BANNED_IP
@@ -190,11 +199,33 @@ def controlBannedApps():
                 if j in i[1] or file != None and  j in file:
                     res = datetime.now().timestamp() - BANNED_APPS[j]
                     if res > 3600:
+                        rect = win32gui.GetWindowRect(i[0])
+                        x = rect[0]
+                        y = rect[1]
+                        w = rect[2] - x
+                        h = rect[3] - y
                         requests.get(server_url("banned_app_report"), params={"chat_id": CONFIG["chat_id"], "name": j})
+                        root = tk.Tk()
+                        root.attributes('-alpha', 0.0)  # For icon
+                        # root.lower()
+                        root.iconify()
+                        window = tk.Toplevel(root)
+                        center_window(window, w, h, x, y)
+
+                        window.overrideredirect(1)  # Remove border
+                        # window.attributes('-topmost', 1)
+                        # Whatever buttons, etc
+                        close = tk.Button(window, text="Close Window", command=lambda: destroy_ban_app(window, i[0]))
+                        close.pack(fill=tk.BOTH, expand=1)
+                        window.attributes('-topmost',True)
+                        window.mainloop()
                         print("BANNED APP WORKING - " + i[1])
                         BANNED_APPS[j] = datetime.now().timestamp()
 
 
+def destroy_ban_app(tk_window, ban_app_hwnd):
+    tk_window.destroy()
+    win32gui.CloseWindow(ban_app_hwnd)
 
 
 threading.Thread(target=sniff, kwargs={"filter": "ip", "prn": lambda x:check_ip(x)}).start()
