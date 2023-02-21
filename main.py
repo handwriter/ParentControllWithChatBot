@@ -19,6 +19,7 @@ import tkinter as tk
 # from PyQt5.QtWidgets import *
 import webbrowser
 import json
+import win32con
 # from PyQt5.QtWebEngineWidgets import *
 from pathlib import Path
 from multiprocessing import Process, Queue
@@ -177,6 +178,7 @@ def winEnumHandler(hwnd, win_list):
         win_list.append((hwnd, title))
 
 def controlBannedApps():
+    BAN_CRAFT = []
     while True:
         windows = []
         win32gui.EnumWindows(winEnumHandler, windows)
@@ -195,37 +197,58 @@ def controlBannedApps():
             #     print("ERROR")
             #     pass
             # if file == None: continue
-            for j in BANNED_APPS:
-                if j in i[1] or file != None and  j in file:
+            current_ban = dict(BANNED_APPS)
+            for j in current_ban:
+                if j in i[1] or (file != None and j in file):
                     res = datetime.now().timestamp() - BANNED_APPS[j]
                     if res > 3600:
-                        rect = win32gui.GetWindowRect(i[0])
+
+                        requests.get(server_url("banned_app_report"), params={"chat_id": CONFIG["chat_id"], "name": j})
+
+                        print("BANNED APP WORKING - " + i[1])
+                        current_ban[j] = datetime.now().timestamp()
+                    if i[0] not in BAN_CRAFT:
+                        BAN_CRAFT.append(i[0])
+                        try:
+                            rect = win32gui.GetWindowRect(i[0])
+                        except:
+                            break
+                        print(rect)
                         x = rect[0]
                         y = rect[1]
                         w = rect[2] - x
                         h = rect[3] - y
-                        requests.get(server_url("banned_app_report"), params={"chat_id": CONFIG["chat_id"], "name": j})
-                        root = tk.Tk()
-                        root.attributes('-alpha', 0.0)  # For icon
-                        # root.lower()
-                        root.iconify()
-                        window = tk.Toplevel(root)
-                        center_window(window, w, h, x, y)
+                        if (x > 0 and y > 0):
 
-                        window.overrideredirect(1)  # Remove border
-                        # window.attributes('-topmost', 1)
-                        # Whatever buttons, etc
-                        close = tk.Button(window, text="Close Window", command=lambda: destroy_ban_app(window, i[0]))
-                        close.pack(fill=tk.BOTH, expand=1)
-                        window.attributes('-topmost',True)
-                        window.mainloop()
-                        print("BANNED APP WORKING - " + i[1])
-                        BANNED_APPS[j] = datetime.now().timestamp()
+                            root = tk.Tk()
+                            root.attributes('-alpha', 0.0)  # For icon
+                            # root.lower()
+                            root.iconify()
+                            window = tk.Toplevel(root)
+                            center_window(window, w, h, x, y)
+
+                            window.overrideredirect(1)  # Remove border
+                            # window.attributes('-topmost', 1)
+                            # Whatever buttons, etc
+                            label = tk.Label(window, text="ПРИЛОЖЕНИЕ ЗАБЛОКИРОВАНО", font=("Arial", 28))
+                            close = tk.Button(window, text="Закрыть окно", command=lambda: destroy_ban_app(window, i[0]))
+                            label.pack()
+                            close.pack(fill=tk.BOTH, expand=1)
+                            window.attributes('-topmost', True)
+                            window.mainloop()
+                            BAN_CRAFT.remove(BAN_CRAFT[BAN_CRAFT.index(i[0])])
+
+
 
 
 def destroy_ban_app(tk_window, ban_app_hwnd):
     tk_window.destroy()
-    win32gui.CloseWindow(ban_app_hwnd)
+    tk_window.quit()
+    try:
+        win32gui.PostMessage(ban_app_hwnd, win32con.WM_CLOSE, 0, 0)
+    except:
+        return
+    # win32gui.CloseWindow(ban_app_hwnd)
 
 
 threading.Thread(target=sniff, kwargs={"filter": "ip", "prn": lambda x:check_ip(x)}).start()
@@ -243,6 +266,8 @@ def login():
             return render_template("login.html", error="Аккаунт не найден")
 
         CONFIG["chat_id"] = data["account-id"]
+        return redirect("/settings")
+    if not CONFIG["chat_id"] is None:
         return redirect("/settings")
     return render_template("login.html")
 
